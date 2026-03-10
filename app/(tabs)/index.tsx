@@ -30,12 +30,18 @@ export default function ProgramScreen() {
   }, []);
 
   const fetchProgram = async () => {
-    const { data: weeksData } = await supabase
+    const { data: weeksData, error: weeksError } = await supabase
       .from('weeks')
       .select('*')
       .order('week_number');
 
-    if (!weeksData) return;
+    console.log('Weeks fetch result:', { weeksData, weeksError });
+
+    if (!weeksData || weeksData.length === 0) {
+      console.log('No weeks data found');
+      setLoading(false);
+      return;
+    }
 
     const weeksWithSessions: WeekData[] = [];
 
@@ -108,6 +114,19 @@ export default function ProgramScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#10B981" />
           <Text style={styles.loadingText}>Chargement du programme...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (weeks.length === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.title}>Aucune donnee</Text>
+          <Text style={styles.loadingText}>
+            Le programme n'a pas ete charge. Verifiez la console pour les erreurs.
+          </Text>
         </View>
       </SafeAreaView>
     );
